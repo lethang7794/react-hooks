@@ -10,7 +10,10 @@ function UsernameForm({
   initialUsername?: string
   onSubmitUsername: (username: string) => void
 }) {
-  const [username, setUsername] = React.useState(initialUsername)
+  const usernameFromLS = localStorage.getItem('username')
+  const [username, setUsername] = React.useState(
+    usernameFromLS || initialUsername,
+  )
   const [touched, setTouched] = React.useState(false)
 
   const usernameIsLowerCase = username === username.toLowerCase()
@@ -39,7 +42,9 @@ function UsernameForm({
   }
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setUsername(event.currentTarget.value)
+    const value = event.currentTarget.value
+    setUsername(value)
+    localStorage.setItem('username', value)
   }
 
   function handleBlur() {
