@@ -4,7 +4,7 @@
 import * as React from 'react'
 
 function UsernameForm({
-  initialUsername = '',
+  initialUsername,
   onSubmitUsername,
 }: {
   initialUsername?: string
@@ -12,8 +12,27 @@ function UsernameForm({
 }) {
   const [username, setUsername] = React.useState(initialUsername)
 
+  const usernameIsLowerCase = username === username.toLowerCase()
+  const usernameIsLongEnough = username.length >= 3
+  const usernameIsShortEnough = username.length <= 10
+  const formIsValid =
+    usernameIsLowerCase && usernameIsLongEnough && usernameIsShortEnough
+
+  const displayErrorMessage = !formIsValid
+
+  let errorMessage = ''
+  if (!usernameIsLowerCase) {
+    errorMessage = 'Username must be lower case'
+  } else if (!usernameIsLongEnough) {
+    errorMessage = 'Username must be at least 3 characters long'
+  } else if (!usernameIsShortEnough) {
+    errorMessage = 'Username must be no longer than 10 characters'
+  }
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (!formIsValid) return
+
     onSubmitUsername(username)
   }
 
@@ -25,8 +44,17 @@ function UsernameForm({
     <form name="usernameForm" onSubmit={handleSubmit}>
       <div>
         <label htmlFor="usernameInput">Username:</label>
-        <input id="usernameInput" type="text" onChange={handleChange} value={username} />
+        <input
+          id="usernameInput"
+          type="text"
+          value={username}
+          onChange={handleChange}
+          aria-describedby={displayErrorMessage ? 'error-message' : undefined}
+        />
       </div>
+      {displayErrorMessage ? (
+        <div id="error-message">{errorMessage}</div>
+      ) : null}
       <button type="submit">Submit</button>
     </form>
   )
@@ -37,7 +65,10 @@ function App() {
     alert(`You entered: ${username}`)
   return (
     <div style={{width: 400}}>
-      <UsernameForm initialUsername='Cool name' onSubmitUsername={onSubmitUsername} />
+      <UsernameForm
+        initialUsername="Cool name"
+        onSubmitUsername={onSubmitUsername}
+      />
     </div>
   )
 }
