@@ -17,7 +17,7 @@ function UsernameForm({
 
   React.useEffect(() => {
     localStorage.setItem('username', username)
-  })
+  }, [username])
 
   const [touched, setTouched] = React.useState(false)
 
