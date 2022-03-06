@@ -14,6 +14,11 @@ function UsernameForm({
   const [username, setUsername] = React.useState(
     usernameFromLS || initialUsername,
   )
+
+  React.useEffect(() => {
+    localStorage.setItem('username', username)
+  })
+
   const [touched, setTouched] = React.useState(false)
 
   const usernameIsLowerCase = username === username.toLowerCase()
@@ -44,7 +49,6 @@ function UsernameForm({
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const value = event.currentTarget.value
     setUsername(value)
-    localStorage.setItem('username', value)
   }
 
   function handleBlur() {
