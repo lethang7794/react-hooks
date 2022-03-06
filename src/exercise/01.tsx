@@ -47,12 +47,14 @@ function UsernameForm({
   }
 
   return (
-    <form name="usernameForm" onSubmit={handleSubmit}>
+    <form name="usernameForm" noValidate onSubmit={handleSubmit}>
       <div>
         <label htmlFor="usernameInput">Username:</label>
         <input
           id="usernameInput"
           type="text"
+          required
+          pattern="[a-z]{3-10}"
           value={username}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -60,7 +62,9 @@ function UsernameForm({
         />
       </div>
       {displayErrorMessage ? (
-        <div id="error-message">{errorMessage}</div>
+        <div id="error-message" role="alert">
+          {errorMessage}
+        </div>
       ) : null}
       <button type="submit">Submit</button>
     </form>
