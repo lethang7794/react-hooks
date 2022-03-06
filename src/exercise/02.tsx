@@ -3,6 +3,18 @@
 
 import * as React from 'react'
 
+function useLocalStorageState(key: string, defaultValue = '') {
+  const [value, setValue] = React.useState(
+    () => window.localStorage.getItem(key) || defaultValue,
+  )
+
+  React.useEffect(() => {
+    localStorage.setItem(key, value)
+  }, [value, key])
+
+  return [value, setValue] as const
+}
+
 function UsernameForm({
   initialUsername = '',
   onSubmitUsername,
@@ -10,14 +22,10 @@ function UsernameForm({
   initialUsername?: string
   onSubmitUsername: (username: string) => void
 }) {
-  const usernameFromLS = localStorage.getItem('username')
-  const [username, setUsername] = React.useState(
-    usernameFromLS || initialUsername,
+  const [username, setUsername] = useLocalStorageState(
+    'username',
+    initialUsername,
   )
-
-  React.useEffect(() => {
-    localStorage.setItem('username', username)
-  }, [username])
 
   const [touched, setTouched] = React.useState(false)
 
