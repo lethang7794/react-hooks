@@ -11,6 +11,7 @@ function UsernameForm({
   onSubmitUsername: (username: string) => void
 }) {
   const [username, setUsername] = React.useState(initialUsername)
+  const [touched, setTouched] = React.useState(false)
 
   const usernameIsLowerCase = username === username.toLowerCase()
   const usernameIsLongEnough = username.length >= 3
@@ -18,7 +19,7 @@ function UsernameForm({
   const formIsValid =
     usernameIsLowerCase && usernameIsLongEnough && usernameIsShortEnough
 
-  const displayErrorMessage = !formIsValid
+  const displayErrorMessage = touched && !formIsValid
 
   let errorMessage = ''
   if (!usernameIsLowerCase) {
@@ -31,6 +32,7 @@ function UsernameForm({
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setTouched(true)
     if (!formIsValid) return
 
     onSubmitUsername(username)
@@ -38,6 +40,10 @@ function UsernameForm({
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     setUsername(event.currentTarget.value)
+  }
+
+  function handleBlur() {
+    setTouched(true)
   }
 
   return (
@@ -49,6 +55,7 @@ function UsernameForm({
           type="text"
           value={username}
           onChange={handleChange}
+          onBlur={handleBlur}
           aria-describedby={displayErrorMessage ? 'error-message' : undefined}
         />
       </div>
