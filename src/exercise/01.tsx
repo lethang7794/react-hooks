@@ -4,11 +4,13 @@
 import * as React from 'react'
 
 function UsernameForm({
+  initialUsername = '',
   onSubmitUsername,
 }: {
+  initialUsername?: string
   onSubmitUsername: (username: string) => void
 }) {
-  const [username, setUsername] = React.useState('')
+  const [username, setUsername] = React.useState(initialUsername)
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -35,7 +37,7 @@ function App() {
     alert(`You entered: ${username}`)
   return (
     <div style={{width: 400}}>
-      <UsernameForm onSubmitUsername={onSubmitUsername} />
+      <UsernameForm initialUsername='Cool name' onSubmitUsername={onSubmitUsername} />
     </div>
   )
 }
