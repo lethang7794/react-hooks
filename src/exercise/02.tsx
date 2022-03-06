@@ -3,16 +3,43 @@
 
 import * as React from 'react'
 
-function useLocalStorageState(key: string, defaultValue = '') {
-  const [value, setValue] = React.useState(
-    () => window.localStorage.getItem(key) || defaultValue,
-  )
+type useLocalStorageOptions<TState> = {
+  serialize?: (state: TState) => string
+  deserialize?: (str: string) => TState
+}
+
+function useLocalStorageState<TState>(
+  key: string,
+  defaultValue: TState | (() => TState),
+  {
+    serialize = JSON.stringify,
+    deserialize = JSON.parse,
+  }: useLocalStorageOptions<TState> = {},
+) {
+  const [state, setState] = React.useState(() => {
+    const valueFromLS = window.localStorage.getItem(key)
+    if (valueFromLS) {
+      try {
+        return deserialize(valueFromLS)
+      } catch (error) {
+        window.localStorage.removeItem(key)
+      }
+    }
+    return defaultValue instanceof Function ? defaultValue() : defaultValue
+  })
+
+  const prevKeyRef = React.useRef(key)
 
   React.useEffect(() => {
-    localStorage.setItem(key, value)
-  }, [value, key])
+    const prevKey = prevKeyRef.current
+    if (prevKey !== key) {
+      window.localStorage.removeItem(prevKey)
+      prevKeyRef.current = key
+    }
+    window.localStorage.setItem(key, serialize(state))
+  }, [key, serialize, state])
 
-  return [value, setValue] as const
+  return [state, setState] as const
 }
 
 function UsernameForm({
@@ -22,10 +49,8 @@ function UsernameForm({
   initialUsername?: string
   onSubmitUsername: (username: string) => void
 }) {
-  const [username, setUsername] = useLocalStorageState(
-    'username',
-    initialUsername,
-  )
+  const [key, setKey] = React.useState('username')
+  const [username, setUsername] = useLocalStorageState(key, initialUsername)
 
   const [touched, setTouched] = React.useState(false)
 
@@ -65,6 +90,16 @@ function UsernameForm({
 
   return (
     <form name="usernameForm" onSubmit={handleSubmit} noValidate>
+      <button
+        type="button"
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+          if (key === 'username') setKey('name')
+          if (key === 'name') setKey('alias')
+          if (key === 'alias') setKey('username')
+        }}
+      >
+        Change key
+      </button>
       <div>
         <label htmlFor="usernameInput">Username:</label>
         <input
