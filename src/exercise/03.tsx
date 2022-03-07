@@ -4,16 +4,10 @@
 import * as React from 'react'
 
 function Name() {
-  const [name, setName] = React.useState('')
-
   return (
     <div>
       <label htmlFor="name">Name: </label>
-      <input
-        id="name"
-        value={name}
-        onChange={event => setName(event.currentTarget.value)}
-      />
+      <input id="name" />
     </div>
   )
 }
