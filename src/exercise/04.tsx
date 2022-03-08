@@ -13,11 +13,10 @@ import {useLocalStorageState} from '../utils'
 const SQUARES_KEY = 'squares'
 
 function Board() {
-  const [squares, setSquares] = useLocalStorageState<Squares>(
-    SQUARES_KEY,
-    Array(9).fill(null),
-  )
+  const [history, setHistory] = React.useState<Squares[]>([Array(9).fill(null)])
+  const [currentStep, setCurrentStep] = React.useState(0)
 
+  const squares = history[currentStep]
   const nextValue = calculateNextValue(squares)
   const winner = calculateWinner(squares)
   const status = calculateStatus(winner, squares, nextValue)
@@ -27,15 +26,23 @@ function Board() {
   function selectSquare(index: number) {
     if (winner || squares[index]) return
 
-    setSquares(previousSquares => {
-      const nextSquares = [...previousSquares]
+    setHistory(prevHistory => {
+      const prevSquares = prevHistory[currentStep]
+      const nextSquares = [...prevSquares]
       nextSquares[index] = nextValue
-      return nextSquares
+
+      if (currentStep < prevHistory.length) {
+        prevHistory = prevHistory.slice(0, currentStep + 1)
+      }
+      const nextHistory = [...prevHistory, nextSquares]
+      return nextHistory
     })
+    setCurrentStep(prev => prev + 1)
   }
 
   function restart() {
-    setSquares(Array(9).fill(null))
+    setHistory([Array(9).fill(null)])
+    setCurrentStep(0)
   }
 
   function renderSquare(i: number) {
@@ -67,6 +74,18 @@ function Board() {
       <button className="restart" onClick={restart}>
         restart
       </button>
+      <ul>
+        {history.map((h, i) => (
+          <li>
+            <button
+              onClick={() => setCurrentStep(i)}
+              disabled={i === currentStep}
+            >
+              {`Go to step ${i}`} - {i === currentStep ? 'Current' : ''}
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
