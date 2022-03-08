@@ -11,10 +11,16 @@ import type {Squares} from '../tic-tac-toe-utils'
 import {useLocalStorageState} from '../utils'
 
 const SQUARES_KEY = 'squares'
+const CURRENT_STEP_KEY = 'currentStep'
 
 function Board() {
-  const [history, setHistory] = React.useState<Squares[]>([Array(9).fill(null)])
-  const [currentStep, setCurrentStep] = React.useState(0)
+  const [history, setHistory] = useLocalStorageState<Squares[]>(SQUARES_KEY, [
+    Array(9).fill(null),
+  ])
+  const [currentStep, setCurrentStep] = useLocalStorageState(
+    CURRENT_STEP_KEY,
+    0,
+  )
 
   const squares = history[currentStep]
   const nextValue = calculateNextValue(squares)
