@@ -9,8 +9,26 @@ import {
 } from '../tic-tac-toe-utils'
 import type {Squares} from '../tic-tac-toe-utils'
 
+const SQUARES_KEY = 'squares'
+
 function Board() {
-  const [squares, setSquares] = React.useState<Squares>(Array(9).fill(null))
+  const [squares, setSquares] = React.useState<Squares>(() => {
+    let localStorageValue = window.localStorage.getItem(SQUARES_KEY)
+    if (localStorageValue) {
+      try {
+        let value = JSON.parse(localStorageValue)
+        return value
+      } catch (error) {
+        console.log('Something went wrong')
+      }
+      return Array(9).fill(null)
+    }
+    return Array(9).fill(null)
+  })
+
+  React.useEffect(() => {
+    localStorage.setItem(SQUARES_KEY, JSON.stringify(squares))
+  }, [squares])
 
   const nextValue = calculateNextValue(squares)
   const winner = calculateWinner(squares)
