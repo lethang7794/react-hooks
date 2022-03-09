@@ -29,11 +29,18 @@ function UsernameForm({
   // 🦺 useRef is a generic function and the type you pass is the type of value
   // you intend to store in the ref. Since we plan to store the <input /> in this
   // ref, you'll use HTMLInputElement
+  const usernameInputRef = React.useRef<HTMLInputElement>(null)
 
   // 🐨 Add a useEffect here. Whenever the `displayErrorMessage` state changes,
   // we want to call `focus()` on usernameInputRef.current if
   // displayErrorMessage is true.
   // 💰 You'll want to add `displayErrorMessage` in the effect dependencies array,
+  React.useEffect(() => {
+    if (displayErrorMessage) {
+      usernameInputRef.current?.focus()
+    }
+  }, [displayErrorMessage])
+
   //
   // 🦉 you'll get a linting warning if you try to include `usernameInputRef`
   // or `usernameInputRef.current`.
@@ -70,6 +77,7 @@ function UsernameForm({
         <label htmlFor="usernameInput">Username:</label>
         <input
           // 🐨 set usernameInputRef as a ref prop here
+          ref={usernameInputRef}
           id="usernameInput"
           type="text"
           value={username}
