@@ -14,20 +14,17 @@ import {
 } from '../pokemon'
 import {PokemonData} from '../types'
 
-type Status = 'idle' | 'pending' | 'resolved' | 'rejected'
-interface State {
-  status?: Status
-  pokemon?: PokemonData
-  error?: Error
-}
+
+type PokemonState =
+  | {status: 'idle'}
+  | {status: 'pending'; pokemon: null}
+  | {status: 'resolved'; pokemon: PokemonData}
+  | {status: 'rejected'; error: Error}
 
 function PokemonInfo({pokemonName}: {pokemonName: string}) {
-  const [state, setState] = React.useState<State>({
+  const [state, setState] = React.useState<PokemonState>({
     status: 'idle',
-    pokemon: null,
-    error: null,
   })
-  const {status, pokemon, error} = state
 
   React.useEffect(() => {
     if (!pokemonName) return
@@ -38,28 +35,28 @@ function PokemonInfo({pokemonName}: {pokemonName: string}) {
         const data = await fetchPokemon(pokemonName)
         setState({status: 'resolved', pokemon: data})
       } catch (error) {
-        setState({error, status: 'rejected'})
+        setState({status: 'rejected', error})
       }
     }
     fetchData()
   }, [pokemonName])
 
-  if (status === 'idle') {
+  if (state.status === 'idle') {
     return <>Submit a pokemon</>
   }
-  if (status === 'pending') {
+  if (state.status === 'pending') {
     return <PokemonInfoFallback name={pokemonName} />
   }
-  if (status === 'rejected' && error != null) {
+  if (state.status === 'rejected' && state.error != null) {
     return (
       <div role="alert">
         There was an error:{' '}
-        <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+        <pre style={{whiteSpace: 'normal'}}>{state.error.message}</pre>
       </div>
     )
   }
-  if (status === 'resolved' && pokemon !== null) {
-    return <PokemonDataView pokemon={pokemon} />
+  if (state.status === 'resolved' && state.pokemon !== null) {
+    return <PokemonDataView pokemon={state.pokemon} />
   }
 }
 
