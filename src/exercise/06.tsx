@@ -15,7 +15,7 @@ import {
 import {PokemonData} from '../types'
 
 type ErrorBoundaryProps = {
-  fallbackComponent: React.FC<{error: Error}>
+  FallbackComponent: React.FC<{error: Error}>
 }
 type ErrorBoundaryState = {
   error: null | Error
@@ -34,10 +34,9 @@ class ErrorBoundary extends React.Component<
 
   render() {
     const {error} = this.state
-    const FallbackComponent = this.props.fallbackComponent
 
     if (error) {
-      return <FallbackComponent error={error} />
+      return <this.props.FallbackComponent error={error} />
     }
 
     return this.props.children
@@ -109,7 +108,7 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <ErrorBoundary key={pokemonName} fallbackComponent={ErrorFallback}>
+        <ErrorBoundary key={pokemonName} FallbackComponent={ErrorFallback}>
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
       </div>
