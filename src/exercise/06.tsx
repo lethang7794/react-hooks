@@ -14,26 +14,31 @@ import {
 } from '../pokemon'
 import {PokemonData} from '../types'
 
-type State = 'idle' | 'pending' | 'resolved' | 'rejected'
+type Status = 'idle' | 'pending' | 'resolved' | 'rejected'
+interface State {
+  status?: Status
+  pokemon?: PokemonData
+  error?: Error
+}
 
 function PokemonInfo({pokemonName}: {pokemonName: string}) {
-  const [pokemon, setPokemon] = React.useState<PokemonData | null>(null)
-  const [error, setError] = React.useState<Error | null>(null)
-  const [status, setStatus] = React.useState<State>('idle')
+  const [state, setState] = React.useState<State>({
+    status: 'idle',
+    pokemon: null,
+    error: null,
+  })
+  const {status, pokemon, error} = state
 
   React.useEffect(() => {
     if (!pokemonName) return
 
     async function fetchData() {
-      setPokemon(null)
-      setStatus('pending')
+      setState({status: 'pending', pokemon: null})
       try {
         const data = await fetchPokemon(pokemonName)
-        setPokemon(data)
-        setStatus('resolved')
+        setState({status: 'resolved', pokemon: data})
       } catch (error) {
-        setError(error)
-        setStatus('rejected')
+        setState({error, status: 'rejected'})
       }
     }
     fetchData()
