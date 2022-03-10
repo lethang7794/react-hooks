@@ -17,7 +17,7 @@ import {PokemonData} from '../types'
 
 type PokemonState =
   | {status: 'idle'}
-  | {status: 'pending'; pokemon: null}
+  | {status: 'pending'}
   | {status: 'resolved'; pokemon: PokemonData}
   | {status: 'rejected'; error: Error}
 
@@ -30,7 +30,7 @@ function PokemonInfo({pokemonName}: {pokemonName: string}) {
     if (!pokemonName) return
 
     async function fetchData() {
-      setState({status: 'pending', pokemon: null})
+      setState({status: 'pending'})
       try {
         const data = await fetchPokemon(pokemonName)
         setState({status: 'resolved', pokemon: data})
@@ -41,22 +41,26 @@ function PokemonInfo({pokemonName}: {pokemonName: string}) {
     fetchData()
   }, [pokemonName])
 
-  if (state.status === 'idle') {
-    return <>Submit a pokemon</>
-  }
-  if (state.status === 'pending') {
-    return <PokemonInfoFallback name={pokemonName} />
-  }
-  if (state.status === 'rejected' && state.error != null) {
-    return (
-      <div role="alert">
-        There was an error:{' '}
-        <pre style={{whiteSpace: 'normal'}}>{state.error.message}</pre>
-      </div>
-    )
-  }
-  if (state.status === 'resolved' && state.pokemon !== null) {
-    return <PokemonDataView pokemon={state.pokemon} />
+  switch (state.status) {
+    case 'idle':
+      return <>Submit a pokemon</>
+
+    case 'pending':
+      return <PokemonInfoFallback name={pokemonName} />
+
+    case 'rejected':
+      return (
+        <div role="alert">
+          There was an error:{' '}
+          <pre style={{whiteSpace: 'normal'}}>{state.error.message}</pre>
+        </div>
+      )
+
+    case 'resolved':
+      return <PokemonDataView pokemon={state.pokemon} />
+
+    default:
+      throw new Error('This should be impossible')
   }
 }
 
