@@ -3,6 +3,7 @@
 
 import * as React from 'react'
 import {ErrorBoundary} from 'react-error-boundary'
+import type {FallbackProps} from 'react-error-boundary'
 
 // 🐨 you'll want the following additional things from '../pokemon':
 // fetchPokemon: the function we call to get the pokemon info
@@ -16,11 +17,12 @@ import {
 } from '../pokemon'
 import {PokemonData} from '../types'
 
-function ErrorFallback({error}: {error: Error}) {
+function ErrorFallback({error, resetErrorBoundary}: FallbackProps) {
   return (
     <div role="alert">
       There was an error:{' '}
       <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+      <button onClick={() => resetErrorBoundary()}>Try again</button>
     </div>
   )
 }
@@ -81,7 +83,10 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <ErrorBoundary key={pokemonName} FallbackComponent={ErrorFallback}>
+        <ErrorBoundary
+          FallbackComponent={ErrorFallback}
+          resetKeys={[pokemonName]}
+        >
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
       </div>
