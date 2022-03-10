@@ -14,33 +14,43 @@ import {
 } from '../pokemon'
 import {PokemonData} from '../types'
 
-type ErrorBoundaryState = {
-  hasError: boolean
+type ErrorBoundaryProps = {
+  fallbackComponent: React.FC<{error: Error}>
 }
-class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
-  constructor(props) {
-    super(props)
-    this.state = {hasError: false}
-  }
+type ErrorBoundaryState = {
+  error: null | Error
+}
 
-  static getDerivedStateFromError(error) {
+class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  state: ErrorBoundaryState = {error: null}
+
+  static getDerivedStateFromError(error: Error) {
     // Update state so the next render will show the fallback UI.
-    return {hasError: true}
-  }
-
-  componentDidCatch(error, errorInfo) {
-    // You can also log the error to an error reporting service
-    console.log(error, errorInfo)
+    return {error}
   }
 
   render() {
-    if (this.state.hasError) {
-      // You can render any custom fallback UI
-      return <h1>Something went wrong.</h1>
+    const {error} = this.state
+    const FallbackComponent = this.props.fallbackComponent
+
+    if (error) {
+      return <FallbackComponent error={error} />
     }
 
     return this.props.children
   }
+}
+
+function ErrorFallback({error}: {error: Error}) {
+  return (
+    <div role="alert">
+      There was an error:{' '}
+      <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+    </div>
+  )
 }
 
 type PokemonState =
@@ -77,12 +87,7 @@ function PokemonInfo({pokemonName}: {pokemonName: string}) {
       return <PokemonInfoFallback name={pokemonName} />
 
     case 'rejected':
-      return (
-        <div role="alert">
-          There was an error:{' '}
-          <pre style={{whiteSpace: 'normal'}}>{state.error.message}</pre>
-        </div>
-      )
+      throw state.error
 
     case 'resolved':
       return <PokemonDataView pokemon={state.pokemon} />
@@ -104,7 +109,7 @@ function App() {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <ErrorBoundary>
+        <ErrorBoundary fallbackComponent={ErrorFallback}>
           <PokemonInfo pokemonName={pokemonName} />
         </ErrorBoundary>
       </div>
